@@ -1,7 +1,11 @@
 class Slope
-  attr_reader :file
+  attr_reader :slope
   def initialize
-    @file = File.open("./lib/3/data.txt", 'r').readlines
+    file = File.open("./lib/3/data.txt", 'r').readlines
+    @slope = []
+    file.each do |line|
+      @slope << line.chomp * 120
+    end
   end
 
   def part_one
@@ -9,21 +13,10 @@ class Slope
   end
 
   def part_two
-    a = traverse_slope(1)
-    b = traverse_slope(3)
-    c = traverse_slope(5)
-    d = traverse_slope(7)
-    e = traverse_slope(1, true)
-    f = a*b*c*d*e
-    p f
+    ([1, 3, 5, 7].map {|jump| traverse_slope(jump) } << traverse_slope(1, true)).reduce(:*)
   end
 
   def traverse_slope(drop, skip=false)
-    slope = []
-    file.each do |line|
-      slope << line.chomp * 120
-    end
-
     trees_hit = 0
     position = 0
     slope.each_with_index do |row, index|
