@@ -1,7 +1,7 @@
 class Slope
   attr_reader :file
   def initialize
-    file = File.open("./lib/3/data.txt", 'r').readlines
+    @file = File.open("./lib/3/data.txt", 'r').readlines
   end
 
   def part_one
