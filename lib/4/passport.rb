@@ -19,34 +19,10 @@ class Passport
   end
 
   def get_passports(data)
-    passes = {}
     count = 0
-    data.each do |line|
-      if line == "\n"
-        count += 1
-      else
-        if passes[count]
-          if line.split(' ').size > 1
-            line.split(' ').each {|l| passes[count] << l }
-          else
-            passes[count] << line.chomp
-          end
-        else
-          if line.split(' ').size > 1
-            line.split(' ').each_with_index do |l, i|
-              if i == 0
-                passes[count] = [l]
-              else
-                passes[count] << l
-              end
-            end
-          else
-            passes[count] = [line.chomp]
-          end
-        end
-      end
+    data.each_with_object(Hash.new {|h, k| h[k] = []}) do |line, hash| 
+      line == "\n" ? count += 1 : line.split(' ').each {|l| hash[count] << l.chomp }
     end
-    passes
   end
 
   def validate(p1 = true) 
