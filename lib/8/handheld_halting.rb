@@ -1,70 +1,72 @@
-require 'byebug'
-class Machine
+class HandheldHalting
   attr_accessor :accumalator, :current_ins, :call_list, :ins
-  def initialize(file=nil)
+  def initialize(file = nil)
     @accumalator = 0
     @current_ins = 0
     @call_list = []
     if file.nil?
-      instructions = File.open('./data.txt', 'r').readlines
+      instructions = File.open('./lib/8/data.txt', 'r').readlines
       @ins = instructions.each_with_object({}).with_index {|(ins, hash), index| hash[index] = ins.chomp }
     else
       @ins = file
     end
   end
 
-  def run_instruction
+  def part_one 
+    run_instruction(true)
+  end
+
+  def run_instruction(part_one)
     if current_ins == 630
-      # puts "program terminating"
       return accumalator
     end
 
-    # puts "running ins number #{current_ins+1}: #{ins[current_ins]}"
     if call_list.include? current_ins
-      # puts "program stopped with acc value of #{accumalator}"
-      return false
+      if part_one
+        return accumalator
+      else
+        return false
+      end
     else
       call_list << current_ins
     end
 
     op = ins[current_ins].split(' ').first
     value = ins[current_ins].split(' ').last
+    plus_minus = value.scan(/\D/)[0]
+    amount = value.scan(/\d+/)[0].to_i
+
     if op == "acc"
       self.current_ins += 1
-      plus_minus = value.scan(/\D/)[0]
       if plus_minus == "+"
-        # debugger
-        self.accumalator += value.scan(/\d+/)[0].to_i
-        run_instruction
+        self.accumalator += amount
+        run_instruction(part_one)
       else
-        self.accumalator -= value.scan(/\d+/)[0].to_i
-        run_instruction
+        self.accumalator -= amount
+        run_instruction(part_one)
       end
     elsif op == "jmp"
-      plus_minus = value.scan(/\D/)[0]
       if plus_minus == "+"
-        self.current_ins += value.scan(/\d+/)[0].to_i
-        run_instruction
+        self.current_ins += amount
+        run_instruction(part_one)
       else
-        self.current_ins -= value.scan(/\d+/)[0].to_i
-        run_instruction
+        self.current_ins -= amount
+        run_instruction(part_one)
       end
     elsif op == "nop"
-      # debugger
       self.current_ins += 1
-      run_instruction
+      run_instruction(part_one)
     else
-      p "not recoginised"
+      raise StandardError => e
     end
   end
 end
 
-
-class FixMachine
+class FixHalting
   attr_accessor :last_seen, :ins
   def initialize
     @last_seen = 0
-    instructions = File.open('./data.txt', 'r').readlines
+    instructions = File.open('./lib/8/data.txt', 'r').readlines
     @ins = instructions.each_with_object({}).with_index {|(ins, hash), index| hash[index] = ins.chomp }
   end
 
@@ -77,8 +79,7 @@ class FixMachine
           ins[k] = "nop #{op}"
           res = attempt_fix
           if res
-            p res
-            return
+            return res
           else
             ins[k] = "jmp #{op}"
           end
@@ -88,13 +89,11 @@ class FixMachine
   end
 
   def attempt_fix
-    machine = Machine.new(ins)
-    if machine.run_instruction
+    machine = HandheldHalting.new(ins)
+    if machine.run_instruction(false)
       return machine.accumalator
     else
-      return false
+      false
     end
   end
 end
-
-FixMachine.new().change_data
