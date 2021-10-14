@@ -21,23 +21,19 @@ class ShuttleSearch
   end
 
   def solve_part_1
-    ebus = 0
     waits = {}
     times.each do |t|
       a = (t.last << earliest_time).sort
       idx = a.index(earliest_time)
-      if t[idx-1] == earliest_time || t[idx+1] == earliest_time
-        ebus = t.first
-      end
-
       next_bus = a[idx+1]
-      waits[t.first] = (next_bus - earliest_time)
+      waits[t.first] = next_bus - earliest_time
     end
 
-    baw = waits.sort_by {|k, v| v}.first
-    bus = baw[0]
-    wait = baw[1]
-    bus * wait
+    waits.sort_by {|k, v| v}.first.inject(:*)
+  end
+
+  def solve_part_2
+
   end
 end
 
